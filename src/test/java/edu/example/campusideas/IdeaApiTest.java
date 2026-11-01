@@ -1,6 +1,5 @@
 package edu.example.campusideas;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -30,5 +29,14 @@ class IdeaApiTest {
     .andExpect(jsonPath("$.id").exists())
     .andExpect(jsonPath("$.title").value("Create a student tech lab"))
     .andExpect(jsonPath("$.category").value("technology"));
+    }
+
+    @Autowired private IdeaStore store;
+    @Test void spacesOnlyTitleAddsNoIdea() throws Exception {
+        int before = store.findAll().size();
+        mvc.perform(post("/api/ideas").contentType(MediaType.APPLICATION_JSON)
+            .content("{\"title\":\"   \",\"category\":\"clubs\"}"))
+            .andExpect(status().isBadRequest());
+        org.junit.jupiter.api.Assertions.assertEquals(before, store.findAll().size());
     }
 }
